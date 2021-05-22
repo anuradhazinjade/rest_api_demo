@@ -1,0 +1,10 @@
+name: 'REST API Demo'
+description: "Custom Module for ctreate content using REST API resource."
+core_version_requirement: ^8.8 || ^9
+type: module
+
+dependencies:
+- restui:restui
+
+version: '8.x-1.0'
+datestamp: 1621685506
