@@ -1,5 +1,5 @@
 name: 'REST API Demo'
-description: "Custom Module for ctreate content using REST API resource."
+description: "Custom Module for create content of default content type 'basic page' with additional tags term reference field & 'publish date' field using REST API resource."
 core_version_requirement: ^8.8 || ^9
 type: module
 
