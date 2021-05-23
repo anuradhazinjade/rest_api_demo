@@ -91,34 +91,42 @@ class GetBasicPage extends ResourceBase {
       throw new AccessDeniedHttpException();
     }
     $error = 200;
-    if (!empty($data['type']['value'])) {
-      if (!empty($data['title']['value'])) {
-        try {
-             if (!empty($data['field_tags']['name'])) { 
-                $properties = [];
-                $properties['name'] = $data['field_tags']['name'];
-                $properties['vid'] = "tags";
-                $terms = \Drupal::entityManager()->getStorage('taxonomy_term')->loadByProperties($properties);
-                  $term = reset($terms);
-                  //echo "<pre>"; print_r($properties); die();
-                  if ($term) {
-                    $term_id = $term->id();
-                  } else {
-                    $term = Term::create([
-                      'vid' =>'tags',
-                      'name' => $data['field_tags']['name'],
-                    ]);
-                    $term->save();
-                    $term_id = $term->id();
-                  }
-                }
-
-          $datetime = $data['field_publish_date']['datetime'];
-          if (!empty($datetime)) {
-            $date = new DrupalDateTime($datetime);
-            $field_publish_date = $date->format('Y-m-d\TH:i:s');
-          }
-          $node = \Drupal::entityTypeManager()->getStorage('node')->create(
+    if (!empty($data['type']['value'])) 
+    {
+      if ($data['type']['value'] == 'page') 
+      {
+        if (!empty($data['title']['value'])) 
+        {
+          try 
+          {
+            if (!empty($data['field_tags']['name'])) 
+            { 
+              $properties = [];
+              $properties['name'] = $data['field_tags']['name'];
+              $properties['vid'] = "tags";
+              $terms = \Drupal::entityManager()->getStorage('taxonomy_term')->loadByProperties($properties);
+              $term = reset($terms);
+              if ($term) 
+              {
+                $term_id = $term->id();
+              } 
+              else 
+              {
+                $term = Term::create([
+                  'vid' =>'tags',
+                  'name' => $data['field_tags']['name'],
+                ]);
+                $term->save();
+                $term_id = $term->id();
+              }
+            }
+            $datetime = $data['field_publish_date']['datetime'];
+            if (!empty($datetime)) 
+            {
+              $date = new DrupalDateTime($datetime);
+              $field_publish_date = $date->format('Y-m-d\TH:i:s');
+            }
+            $node = \Drupal::entityTypeManager()->getStorage('node')->create(
             [
               'type' => $data['type']['value'],
               'title' => $data['title']['value'],
@@ -130,25 +138,38 @@ class GetBasicPage extends ResourceBase {
               'field_publish_date' => $field_publish_date,
               'field_tags' => $term_id ? $term_id : '',
             ]
-          );
-          $node->save();
-          $error = 200;
-          $response['status'] = 'success';
-          $response['message'] = 'Content with title ' ."'". $data['title']['value'] . "'".' has been created successfully.';
-        } catch (EntityStorageException $e) {
+            );
+            $node->save();
+            $error = 200;
+            $response['status'] = 'success';
+            $response['message'] = 'Content with title ' ."'". $data['title']['value'] . "'".' has been created successfully.';
+          } 
+          catch (EntityStorageException $e) 
+          {
             $response['status'] = 'failure';
             $error = 500;
             $response['error'] = 'Internal Server Error';
+          }
         }
-      } else {
+        else 
+        {
           $response['status'] = 'failure';
           $error = 400;
           $response['error'] = 'Title field is missing.';
+        }
       }
-    } else {
+      else 
+      {
         $response['status'] = 'failure';
         $error = 400;
-        $response['error'] = 'Type field is missing.';
+        $response['error'] = 'Type field value must be page.';
+      }
+    } 
+    else 
+    {
+      $response['status'] = 'failure';
+      $error = 400;
+      $response['error'] = 'Type field is missing.';
     }
 
     $response = new ModifiedResourceResponse($response, $error);
