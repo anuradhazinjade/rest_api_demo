@@ -33,7 +33,7 @@ CONFIGURATION
     (/admin/config/services/rest). 
  2. Enable Resource Name "Rest Resource Post Example Demo".
  3. Select Granularity to "Resource", check Methods to "POST", Accepted request formats to "json" & Authentication providers to "basic_auth".
- 4. Click "save configuration" to ssave configuration. 
+ 4. Click "save configuration" to save configuration. 
  5. Goto Administration > Structure > Content types > Basic page (admin/structure/types/manage/page/fields), create 2 fields with name "Tags" with term_reference type (machine name is "field_tags" ) & "Publish Date" with Date type & select Date type is "Date and time" (machine name is "field_publish_date"). 
 
 
