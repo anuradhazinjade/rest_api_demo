@@ -10,7 +10,7 @@ CONTENTS OF THIS FILE
 INTRODUCTION
 ------------
 
-The Rest APi Demo module provides support functions for create content using rest API.
+The Rest APi Demo module provides support functions for create content of default content type 'basic page' with additional tags term reference field & 'publish date' field using REST API resource.
 
 REQUIREMENTS
 ------------
