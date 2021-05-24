@@ -97,58 +97,68 @@ class GetBasicPage extends ResourceBase {
       {
         if (!empty($data['title']['value'])) 
         {
-          try 
+          if ($data['body']['format'] == 'full_html')
           {
-            if (!empty($data['field_tags']['name'])) 
-            { 
-              $properties = [];
-              $properties['name'] = $data['field_tags']['name'];
-              $properties['vid'] = "tags";
-              $terms = \Drupal::entityManager()->getStorage('taxonomy_term')->loadByProperties($properties);
-              $term = reset($terms);
-              if ($term) 
-              {
-                $term_id = $term->id();
-              } 
-              else 
-              {
-                $term = Term::create([
-                  'vid' =>'tags',
-                  'name' => $data['field_tags']['name'],
-                ]);
-                $term->save();
-                $term_id = $term->id();
-              }
-            }
-            $datetime = $data['field_publish_date']['datetime'];
-            if (!empty($datetime)) 
+            try 
             {
-              $date = new DrupalDateTime($datetime);
-              $field_publish_date = $date->format('Y-m-d\TH:i:s');
+              if (!empty($data['field_tags']['name'])) 
+              { 
+                $properties = [];
+                $properties['name'] = $data['field_tags']['name'];
+                $properties['vid'] = "tags";
+                $terms = \Drupal::entityManager()->getStorage('taxonomy_term')->loadByProperties($properties);
+                $term = reset($terms);
+                if ($term) 
+                {
+                  $term_id = $term->id();
+                } 
+                else 
+                {
+                  $term = Term::create([
+                    'vid' =>'tags',
+                    'name' => $data['field_tags']['name'],
+                  ]);
+                  $term->save();
+                  $term_id = $term->id();
+                }
+              }
+              $datetime = $data['field_publish_date']['datetime'];
+              if (!empty($datetime)) 
+              {
+                $date = new DrupalDateTime($datetime);
+                $field_publish_date = $date->format('Y-m-d\TH:i:s');
+              }
+
+              $node = \Drupal::entityTypeManager()->getStorage('node')->create(
+              [
+                'type' => $data['type']['value'],
+                'title' => $data['title']['value'],
+                'body' => [
+                  'summary' => $data['body']['summary'],
+                  'value' => $data['body']['value'],
+                  'format' => $data['body']['format'],
+                ],
+                'field_publish_date' => $field_publish_date,
+                'field_tags' => $term_id ? $term_id : '',
+              ]
+              );
+              $node->save();
+              $error = 200;
+              $response['status'] = 'success';
+              $response['message'] = 'Content with title ' ."'". $data['title']['value'] . "'".' has been created successfully.';
+            } 
+            catch (EntityStorageException $e) 
+            {
+              $response['status'] = 'failure';
+              $error = 500;
+              $response['error'] = 'Internal Server Error';
             }
-            $node = \Drupal::entityTypeManager()->getStorage('node')->create(
-            [
-              'type' => $data['type']['value'],
-              'title' => $data['title']['value'],
-              'body' => [
-                'summary' => $data['body']['summary'],
-                'value' => $data['body']['value'],
-                'format' => $data['body']['format'],
-              ],
-              'field_publish_date' => $field_publish_date,
-              'field_tags' => $term_id ? $term_id : '',
-            ]
-            );
-            $node->save();
-            $error = 200;
-            $response['status'] = 'success';
-            $response['message'] = 'Content with title ' ."'". $data['title']['value'] . "'".' has been created successfully.';
-          } 
-          catch (EntityStorageException $e) 
+          }
+          else
           {
             $response['status'] = 'failure';
-            $error = 500;
-            $response['error'] = 'Internal Server Error';
+            $error = 400;
+            $response['error'] = 'Body field format value must be full_html.';
           }
         }
         else 
